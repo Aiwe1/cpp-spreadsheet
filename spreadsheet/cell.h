@@ -1,16 +1,16 @@
 #pragma once
 
+#include <set>
+#include <memory>
+
 #include "common.h"
 #include "formula.h"
 
-#include <functional>
-#include <unordered_set>
-
-class Sheet;
+//class Sheet;
 
 class Cell : public CellInterface {
 public:
-    Cell(Sheet& sheet);
+    Cell(SheetInterface& sheet);
     ~Cell();
 
     void Set(std::string text);
@@ -20,7 +20,11 @@ public:
     std::string GetText() const override;
     std::vector<Position> GetReferencedCells() const override;
 
-    bool IsReferenced() const;
+    //bool IsReferenced() const;
+
+    void CheckCircle(std::set<const CellInterface*>& visited, const std::vector<Position>& ref_cells) const;
+
+    void InvalidateCache(Cell* cell);
 
 private:
     class Impl;
@@ -30,7 +34,8 @@ private:
 
     std::unique_ptr<Impl> impl_;
 
-    // Добавьте поля и методы для связи с таблицей, проверки циклических 
-    // зависимостей, графа зависимостей и т. д.
+    SheetInterface& sheet_;
 
+    std::set<Cell*> refs_;
+    std::set<Cell*> depends_;
 };
